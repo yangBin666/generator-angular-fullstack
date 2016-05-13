@@ -17,7 +17,7 @@ describe('User Model', function() {
   before(function() {
     // Sync and clear users before testing
     return User.sync().then(function() {
-      return User.destroy({ where: {} });
+      return User.destroy({ where: {}, force: true });
     });
   });
 
@@ -26,7 +26,7 @@ describe('User Model', function() {
   });
 
   afterEach(function() {
-    return User.destroy({ where: {} });
+    return User.destroy({ where: {}, force: true });
   });
 
   it('should begin with no users', function() {
