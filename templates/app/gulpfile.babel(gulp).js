@@ -637,11 +637,12 @@ gulp.task('constant', function() {
 
 gulp.task('build:images', () => {
     return gulp.src(paths.client.images)
-        .pipe(plugins.imagemin({
-            optimizationLevel: 5,
-            progressive: true,
-            interlaced: true
-        }))
+        .pipe(plugins.imagemin([
+            plugins.imagemin.optipng({optimizationLevel: 5}),
+            plugins.imagemin.mozjpeg({progressive: true}),
+            plugins.imagemin.gifsicle({interlaced: true}),
+            plugins.imagemin.svgo({plugins: [{removeViewBox: false}]})
+        ]))
         .pipe(plugins.rev())
         .pipe(gulp.dest(`${paths.dist}/${clientPath}/assets/images`))
         .pipe(plugins.rev.manifest(`${paths.dist}/${clientPath}/assets/rev-manifest.json`, {
