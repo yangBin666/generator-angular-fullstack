@@ -7,8 +7,15 @@ import uiRouter from 'angular-ui-router';<% } _%>
 import routing from './main.routes';
 
 export class MainController {
+  <%_ if(filters.ts) { _%>
+  $http: ng.IHttpService;
+  socket;
+  awesomeThings: IThing[];
+  newThing: string;
+  <%_ } _%>
+
   /*@ngInject*/
-  constructor($http<% if(filters.socketio) { %>, $scope, socket<% } %>) {
+  constructor($http<%_ if(filters.ts) { _%>: ng.IHttpService<%_ } _%><% if(filters.socketio) { %>, $scope<%_ if(filters.ts) { _%>: ng.IScope<%_ } _%>, socket<% } %>) {
     this.$http = $http;<% if (filters.socketio) { %>
     this.socket = socket;<% } %>
     this.awesomeThings = [];
@@ -21,7 +28,7 @@ export class MainController {
 
   $onInit() {
     this.$http.get('/api/things').then(response => {
-      this.awesomeThings = response.data;<% if (filters.socketio) { %>
+      this.awesomeThings = <% if(filters.ts) { %><IThing[]><% } %>response.data;<% if (filters.socketio) { %>
       this.socket.syncUpdates('thing', this.awesomeThings);<% } %>
     });
   }<% if (filters.models) { %>
@@ -33,10 +40,17 @@ export class MainController {
     }
   }
 
-  deleteThing(thing) {
+  deleteThing(thing<%_ if(filters.ts) { _%>: IThing<%_ } _%>) {
     this.$http.delete('/api/things/' + thing._id);
   }<% } %>
 }
+
+<%_ if(filters.ts) { _%>
+interface IThing {
+  _id: string;
+  name: string;
+  info: string;
+}<% } _%>
 
 export default angular.module('<%= scriptAppName %>.main', [
   <%_ if(filters.ngroute) { _%>

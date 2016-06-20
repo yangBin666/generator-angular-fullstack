@@ -21,6 +21,8 @@ import {routeConfig} from './app.config';
 
 <%_ if(filters.auth) { _%>
 import _Auth from '../components/auth/auth.module';
+<%_ if(filters.ts) { _%>
+import {IAuth} from '../components/auth/auth.service';<% } %>
 import account from './account';
 import admin from './admin';<% } %>
 import navbar from '../components/navbar/navbar.component';
@@ -63,12 +65,14 @@ angular.module('<%= scriptAppName %>', [
 ])
   .config(routeConfig)
   <%_ if(filters.auth) { _%>
-  .run(function($rootScope, $location, Auth) {
+  <%_ if(filters.ts) { _%>
+  .run(function($rootScope: ng.IRootScopeService, $location: ng.ILocationService, Auth: IAuth) {<% } else { %>
+  .run(function($rootScope, $location, Auth) {<% } %>
     'ngInject';
     // Redirect to login if route requires auth and you're not logged in
     $rootScope.$on('$stateChangeStart', function(event, next) {
       Auth.isLoggedIn(function(loggedIn) {
-        if(next.authenticate && !loggedIn) {
+        if (next.authenticate && !loggedIn) {
           $location.path('/login');
         }
       });

@@ -24,7 +24,7 @@ export default angular.module('<%= scriptAppName %>.account', [
 ])
     .config(routing)
     <%_ if (filters.ngroute) { _%>
-    .run(function($rootScope) {
+    .run(function($rootScope<%_ if(filters.ts) { _%>: ng.IRootScopeService<%_ } _%>) {
       'ngInject';
       $rootScope.$on('$routeChangeStart', function(event, next, current) {
         if (next.name === 'logout' && current && current.originalPath && !current.authenticate) {
@@ -33,7 +33,7 @@ export default angular.module('<%= scriptAppName %>.account', [
       });
     })<% } %>
     <%_ if (filters.uirouter) { _%>
-    .run(function($rootScope) {
+    .run(function($rootScope<%_ if(filters.ts) { _%>: ng.IRootScopeService<%_ } _%>) {
       'ngInject';
       $rootScope.$on('$stateChangeStart', function(event, next, nextParams, current) {
         if (next.name === 'logout' && current && current.name && !current.authenticate) {

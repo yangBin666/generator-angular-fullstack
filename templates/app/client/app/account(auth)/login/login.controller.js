@@ -1,8 +1,21 @@
 'use strict';
+<%_ if(filters.ts) { _%>
+
+import {IAuth} from '../../../components/auth/auth.service';
+<%_ } _%>
 
 export default class LoginController {
+  <%_ if(filters.ts) { _%>
+  user;
+  errors;
+  submitted;
+  Auth: IAuth;<% if (filters.ngroute) { %>
+  $location: ng.ILocationService;<% } %><% if (filters.uirouter) { %>
+  $state;<% } %>
+  <%_ } _%>
+
   /*@ngInject*/
-  constructor(Auth<% if (filters.ngroute) { %>, $location<% } %><% if (filters.uirouter) { %>, $state<% } %>) {
+  constructor(Auth<%_ if(filters.ts) { _%>: IAuth<%_ } _%><% if (filters.ngroute) { %>, $location<%_ if(filters.ts) { _%>: ng.ILocationService<%_ } _%><% } %><% if (filters.uirouter) { %>, $state<% } %>) {
     this.user = {};
     this.errors = {};
     this.submitted = false;
@@ -12,7 +25,7 @@ export default class LoginController {
     this.$state = $state;<% } %>
   }
 
-  login(form) {
+  login(form<%_ if(filters.ts) { _%>: ng.IFormController<%_ } _%>) {
     this.submitted = true;
 
     if (form.$valid) {

@@ -1,6 +1,7 @@
 'use strict';
-
-export function authInterceptor($rootScope, $q, $cookies<% if (filters.ngroute) { %>, $location<% } if (filters.uirouter) { %>, $injector<% } %>, Util) {
+<%_ if(filters.ts) { _%>
+export function authInterceptor($rootScope: ng.IRootScopeService, $q: ng.IQService, $cookies<% if (filters.ngroute) { %>, $location: ng.ILocationService<% } if (filters.uirouter) { %>, $injector<% } %>, Util) {<%_ } else { _%>
+export function authInterceptor($rootScope, $q, $cookies<% if (filters.ngroute) { %>, $location<% } if (filters.uirouter) { %>, $injector<% } %>, Util) {<%_ } _%>
   'ngInject';
   <%_ if (filters.uirouter) { _%>
   var state;<% } %>

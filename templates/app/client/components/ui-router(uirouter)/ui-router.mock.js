@@ -1,8 +1,7 @@
 'use strict';
-const angular = require('angular');
 
 angular.module('stateMock', []);
-angular.module('stateMock').service('$state', function($q) {
+angular.module('stateMock').service('$state', function($q<%_ if(filters.ts) { _%>: ng.IQService<%_ } _%>) {
     this.expectedTransitions = [];
 
     this.transitionTo = function(stateName) {

@@ -1,5 +1,7 @@
 'use strict';
-
+<%_ if(filters.ts) { _%>
+import {IAuth} from '../../components/auth/auth.service';
+<%_ } _%>
 <%_ if (filters.uirouter) { _%>
 export default function routes($stateProvider) {
     'ngInject';
@@ -14,7 +16,7 @@ export default function routes($stateProvider) {
         url: '/logout?referrer',
         referrer: 'main',
         template: '',
-        controller: function($state, Auth) {
+        controller: function($state, Auth<%_ if(filters.ts) { _%>: IAuth<%_ } _%>) {
           'ngInject';
           var referrer = $state.params.referrer
                         || $state.current.referrer
@@ -50,7 +52,7 @@ export default function routes($routeProvider) {
         name: 'logout',
         referrer: '/',
         template: '',
-        controller: function($location, $route, Auth) {
+        controller: function($location<%_ if(filters.ts) { _%>: ng.ILocationService<%_ } _%>, $route, Auth<%_ if(filters.ts) { _%>: IAuth<%_ } _%>) {
           var referrer = $route.current.params.referrer ||
                           $route.current.referrer ||
                           '/';

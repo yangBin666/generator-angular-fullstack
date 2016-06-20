@@ -1,6 +1,6 @@
 'use strict';
 
-export function Modal($rootScope, $uibModal) {
+export function Modal($rootScope<%_ if(filters.ts) { _%>: ng.IRootScopeService<%_ } _%>, $uibModal) {
   /**
    * Opens a modal
    * @param  {Object} scope      - an object to be merged with modal's scope

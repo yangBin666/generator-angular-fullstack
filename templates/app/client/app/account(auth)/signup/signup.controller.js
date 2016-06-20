@@ -1,8 +1,18 @@
 'use strict';
+<%_ if(filters.ts) { _%>
+
+import {IAuth} from '../../../components/auth/auth.service';
+import {IUser} from '../../../components/auth/user.service';
+<%_ } _%>
 
 export default class SignupController {
+  <%_ if(filters.ts) { _%>
+  Auth: IAuth;<% if (filters.ngroute) { %>
+  $location: ng.ILocationService;<% } %><% if (filters.uirouter) { %>
+  $state;<% } %>
+  <%_ } _%>
   //start-non-standard
-  user = {};
+  user<%_ if(filters.ts) { _%>: IUser|Object<%_ } _%> = {};
   errors = {};
   submitted = false;
   //end-non-standard
@@ -14,14 +24,25 @@ export default class SignupController {
     this.$state = $state;<% } %>
   }
 
-  register(form) {
+  <%_ if(filters.ts) { _%>
+  isValidUser(user: IUser|Object, form: ng.IFormController): user is IUser {<%_ } else { _%>
+  isValidUser(user, form) {<%_ } _%>
+    if (form.$valid) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  register(form<%_ if(filters.ts) { _%>: ng.IFormController<%_ } _%>) {
     this.submitted = true;
 
-    if (form.$valid) {
+    let user = this.user;
+    if (this.isValidUser(user, form)) {
       this.Auth.createUser({
-        name: this.user.name,
-        email: this.user.email,
-        password: this.user.password
+        name: user.name,
+        email: user.email,
+        password: user.password
       })
       .then(() => {
         // Account created, redirect to home

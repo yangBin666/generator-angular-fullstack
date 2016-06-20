@@ -12,7 +12,7 @@ const ngRoute = require('angular-route');<% } %>
 <%_ if (filters.uirouter) { _%>
 import uiRouter from 'angular-ui-router';<% } %>
 
-function addInterceptor($httpProvider) {
+function addInterceptor($httpProvider<%_ if(filters.ts) { _%>: ng.IHttpProvider<%_ } _%>) {
   'ngInject';
   $httpProvider.interceptors.push('authInterceptor');
 }

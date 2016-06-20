@@ -1,6 +1,8 @@
 'use strict';
 
-export function routeConfig(<% if (filters.ngroute) { %>$routeProvider<% } if (filters.uirouter) { %>$urlRouterProvider<% } %>, $locationProvider) {
+<%_ if(filters.ts) { _%>
+export function routeConfig(<% if (filters.ngroute) { %>$routeProvider<% } if (filters.uirouter) { %>$urlRouterProvider<% } %>, $locationProvider: ng.ILocationProvider) {<% } else { %>
+export function routeConfig(<% if (filters.ngroute) { %>$routeProvider<% } if (filters.uirouter) { %>$urlRouterProvider<% } %>, $locationProvider) {<% } %>
   'ngInject';
   <%_ if(filters.ngroute) { _%>
   $routeProvider

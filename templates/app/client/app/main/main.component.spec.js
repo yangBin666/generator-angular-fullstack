@@ -19,9 +19,9 @@ describe('Component: MainComponent', function() {
   // Initialize the controller and a mock scope
   beforeEach(inject(function(
     _$httpBackend_,
-    $http,
+    $http<%_ if(filters.ts) { _%>: ng.IHttpService<%_ } _%>,
     $componentController,
-    $rootScope<% if (filters.uirouter) {%>,
+    $rootScope<%_ if(filters.ts) { _%>: ng.IRootScopeService<%_ } _%><% if (filters.uirouter) {%>,
     $state<% } %><% if (filters.socketio) {%>,
     socket<% } %>) {
       $httpBackend = _$httpBackend_;

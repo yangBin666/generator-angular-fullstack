@@ -19,15 +19,15 @@ interface IPolyFillErrorConstructor extends ErrorConstructor {
     stackTraceLimit: any;
 }<% } %>
 
-if(!ENV) {
+if (!ENV) {
     var ENV = 'development';
 }
 
-if(ENV === 'production') {
+if (ENV === 'production') {
     // Production
 } else {
     // Development
-    
+
     <%_ if(filters.ts) { _%>
     (<IPolyFillErrorConstructor>Error).stackTraceLimit = Infinity;<% } else { %>
     Error.stackTraceLimit = Infinity;    

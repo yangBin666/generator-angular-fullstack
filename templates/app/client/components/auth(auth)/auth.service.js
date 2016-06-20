@@ -1,16 +1,34 @@
 'use strict';
+<%_ if(filters.ts) { _%>
 
-export function AuthService($location, $http, $cookies, $q, appConfig, Util, User) {
+import {IUser, IUserResource} from './user.service';
+
+export interface IAuth {
+  login(user, callback?: Function): ng.IPromise<any>;
+  logout();
+  createUser(user, callback?: Function): ng.IPromise<any>;
+  changePassword(oldPassword: string, newPassword: string, callback?: Function): ng.IPromise<any>;
+  getCurrentUser(callback?: Function): Object|ng.IPromise<any>;
+  isLoggedIn(callback?: Function): boolean|ng.IPromise<any>;
+  hasRole(role: string, callback?: Function): boolean|ng.IPromise<any>;
+  isAdmin(): boolean|ng.IPromise<any>;
+  getToken(): string;
+}
+
+export function AuthService($location: ng.ILocationService, $http: ng.IHttpService, $cookies,
+    $q: ng.IQService, appConfig, Util, User: IUserResource) {
+  <%_ } else { _%>
+export function AuthService($location, $http, $cookies, $q, appConfig, Util, User) {<%_ } _%>
   'ngInject';
   var safeCb = Util.safeCb;
-  var currentUser = {};
+  var currentUser<% if(filters.ts) { %>: IUser|Object<% } %> = {};
   var userRoles = appConfig.userRoles || [];
 
   if ($cookies.get('token') && $location.path() !== '/logout') {
     currentUser = User.get();
   }
 
-  var Auth = {
+  var Auth<% if(filters.ts) { %>: IAuth<% } %> = {
 
     /**
      * Authenticate user and save token
@@ -19,15 +37,21 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
      * @param  {Function} callback - optional, function(error, user)
      * @return {Promise}
      */
-    login({email, password}, callback: Function) {
+    login({email, password}, callback: Function)<% if(filters.ts) { %>: ng.IPromise<any><% } %> {
       return $http.post('/auth/local', {
         email: email,
         password: password
       })
         .then(res => {
-          $cookies.put('token', res.data.token);
+          <%_ if(filters.ts) { _%>
+          $cookies.put('token', (<any>res.data).token);
+          <%_ } else { _%>
+          $cookies.put('token', res.data.token);<%_ } _%>
           currentUser = User.get();
-          return currentUser.$promise;
+          <%_ if(filters.ts) { _%>
+          return (<IUser>currentUser).$promise;
+          <%_ } else { _%>
+          return currentUser.$promise;<%_ } _%>
         })
         .then(user => {
           safeCb(callback)(null, user);
@@ -55,7 +79,10 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
      * @param  {Function} callback - optional, function(error, user)
      * @return {Promise}
      */
-    createUser(user, callback) {
+    <%_ if(filters.ts) { _%>
+    createUser(user: IUser, callback: Function): ng.IPromise<any> {
+    <%_ } else { _%>
+    createUser(user, callback) {<%_ } _%>
       return User.save(user,
         function(data) {
           $cookies.put('token', data.token);
@@ -76,31 +103,47 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
      * @param  {Function} callback    - optional, function(error, user)
      * @return {Promise}
      */
-    changePassword(oldPassword, newPassword, callback) {
-      return User.changePassword({ id: currentUser._id }, {
+    <%_ if(filters.ts) { _%>
+    changePassword(oldPassword: string, newPassword: string, callback: Function): ng.IPromise<any> {
+    <%_ } else { _%>
+    changePassword(oldPassword, newPassword, callback) {<%_ } _%>
+      let passwordChange = {
         oldPassword: oldPassword,
         newPassword: newPassword
-      }, function() {
-        return safeCb(callback)(null);
-      }, function(err) {
-        return safeCb(callback)(err);
-      }).$promise;
-    },
+      };
+      return User.changePassword(
+        <%_ if(filters.ts) { _%>
+        { id: (<IUser>currentUser)._id },
+        <%_ } else { _%>
+        { id: currentUser._id },<%_ } _%>
+        passwordChange,
+        function() {
+          return safeCb(callback)(null);
+        }, function(err) {
+          return safeCb(callback)(err);
+        }).$promise;
+      },
 
     /**
      * Gets all available info on a user
      *   (synchronous|asynchronous)
      *
-     * @param  {Function|*} callback - optional, funciton(user)
+     * @param  {Function|*} callback - optional, function(user)
      * @return {Object|Promise}
      */
-    getCurrentUser(callback) {
+    <%_ if(filters.ts) { _%>
+    getCurrentUser(callback: Function): Object|ng.IPromise<any> {
+    <%_ } else { _%>
+    getCurrentUser(callback) {<%_ } _%>
       if (arguments.length === 0) {
         return currentUser;
       }
 
       var value = (currentUser.hasOwnProperty('$promise')) ?
-        currentUser.$promise : currentUser;
+        <%_ if(filters.ts) { _%>
+        (<IUser>currentUser).$promise : currentUser;
+        <%_ } else { _%>
+        currentUser.$promise : currentUser;<%_ } _%>
       return $q.when(value)
         .then(user => {
           safeCb(callback)(user);
@@ -118,12 +161,17 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
      * @param  {Function|*} callback - optional, function(is)
      * @return {Bool|Promise}
      */
-    isLoggedIn(callback) {
+    <%_ if(filters.ts) { _%>
+    isLoggedIn(callback: Function): boolean|ng.IPromise<any> {
+    <%_ } else { _%>
+    isLoggedIn(callback) {<%_ } _%>
       if (arguments.length === 0) {
         return currentUser.hasOwnProperty('role');
       }
-
-      return Auth.getCurrentUser(null)
+      <%_ if(filters.ts) { _%>
+      return (<ng.IPromise<any>>Auth.getCurrentUser(null))
+      <%_ } else { _%>
+      return Auth.getCurrentUser(null)<%_ } _%>
         .then(user => {
           var is = user.hasOwnProperty('role');
           safeCb(callback)(is);
@@ -139,16 +187,24 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
       * @param  {Function|*} callback - optional, function(has)
       * @return {Bool|Promise}
       */
-    hasRole(role, callback) {
+    <%_ if(filters.ts) { _%>
+    hasRole(role: string, callback: Function): boolean|ng.IPromise<any> {
+    <%_ } else { _%>
+    hasRole(role, callback) {<%_ } _%>
       var hasRole = function(r, h) {
         return userRoles.indexOf(r) >= userRoles.indexOf(h);
       };
 
       if (arguments.length < 2) {
-        return hasRole(currentUser.role, role);
+        <%_ if(filters.ts) { _%>
+        return hasRole((<IUser>currentUser).role, role);
+        <%_ } else { _%>
+        return hasRole(currentUser.role, role);<%_ } _%>
       }
-
-      return Auth.getCurrentUser(null)
+      <%_ if(filters.ts) { _%>
+      return (<ng.IPromise<any>>Auth.getCurrentUser(null))
+      <%_ } else { _%>
+      return Auth.getCurrentUser(null)<%_ } _%>
         .then(user => {
           var has = (user.hasOwnProperty('role')) ?
             hasRole(user.role, role) : false;
@@ -164,7 +220,7 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
       * @param  {Function|*} callback - optional, function(is)
       * @return {Bool|Promise}
       */
-    isAdmin() {
+    isAdmin()<% if(filters.ts) { %>: boolean|ng.IPromise<any><% } %> {
       return Auth.hasRole
         .apply(Auth, [].concat.apply(['admin'], arguments));
     },
@@ -174,7 +230,7 @@ export function AuthService($location, $http, $cookies, $q, appConfig, Util, Use
      *
      * @return {String} - a token string used for authenticating
      */
-    getToken() {
+    getToken()<% if(filters.ts) { %>: string<% } %> {
       return $cookies.get('token');
     }
   };

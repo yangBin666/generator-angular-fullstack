@@ -1,6 +1,6 @@
 'use strict';
 
-export function OauthButtonsController($window) {
+export function OauthButtonsController($window<%_ if(filters.ts) { _%>: ng.IWindowService<%_ } _%>) {
   this.loginOauth = function(provider) {
     $window.location.href = '/auth/' + provider;
   };

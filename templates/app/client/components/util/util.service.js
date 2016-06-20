@@ -3,7 +3,7 @@
 /**
  * The Util service is for thin, globally reusable, utility functions
  */
-export function UtilService($window) {
+export function UtilService($window<%_ if(filters.ts) { _%>: ng.IWindowService<%_ } _%>) {
   'ngInject';
   var Util = {
     /**
