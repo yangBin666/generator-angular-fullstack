@@ -1,4 +1,5 @@
 'use strict';
+// @flow
 <%_ if(filters.ts) { _%>
 
 import {IUser, IUserResource} from './user.service';
