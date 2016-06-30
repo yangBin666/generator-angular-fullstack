@@ -3,13 +3,15 @@
  * GET     <%= route %>              ->  index<% if(filters.models) { %>
  * POST    <%= route %>              ->  create
  * GET     <%= route %>/:id          ->  show
- * PUT     <%= route %>/:id          ->  update
+ * PUT     <%= route %>/:id          ->  upsert
+ * PATCH   <%= route %>/:id          ->  patch
  * DELETE  <%= route %>/:id          ->  destroy<% } %>
  */
 
 'use strict';<% if(filters.models) { %>
 
-import _ from 'lodash';<% if(filters.mongooseModels) { %>
+import _ from 'lodash';
+import jsonpatch from 'fast-json-patch';<% if(filters.mongooseModels) { %>
 import <%= classedName %> from './<%= basename %>.model';<% } if(filters.sequelizeModels) { %>
 import {<%= classedName %>} from '<%= relativeRequire(config.get('registerModelsFile')) %>';<% } %>
 
@@ -34,15 +36,15 @@ function saveUpsert(new) {
   };
 }
 
-function saveUpdates(updates) {
+function patchUpdates(patches) {
   return function(entity) {
-    <%_ if(filters.mongooseModels) { -%>
-    var updated = _.merge(entity, updates);
-    return updated.save();
-    <%_ } -%>
-    <%_ if(filters.sequelizeModels) { -%>
-    return entity.updateAttributes(updates);
-    <%_ } -%>
+    try {
+      jsonpatch.apply(entity, patches, /*validate*/ true);
+    } catch(err) {
+      return Promise.reject(err);
+    }
+
+    return entity.save();
   };
 }
 
@@ -123,7 +125,7 @@ export function upsert(req, res) {
 }
 
 // Updates an existing <%= classedName %> in the DB
-export function update(req, res) {
+export function patch(req, res) {
   if(req.body._id) {
     delete req.body._id;
   }
@@ -134,7 +136,7 @@ export function update(req, res) {
     }
   })<% } %>
     .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
+    .then(patchUpdates(req.body))
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
