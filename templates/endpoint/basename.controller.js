@@ -10,7 +10,6 @@
 
 'use strict';<% if(filters.models) { %>
 
-import _ from 'lodash';
 import jsonpatch from 'fast-json-patch';<% if(filters.mongooseModels) { %>
 import <%= classedName %> from './<%= basename %>.model';<% } if(filters.sequelizeModels) { %>
 import {<%= classedName %>} from '<%= relativeRequire(config.get('registerModelsFile')) %>';<% } %>
@@ -21,18 +20,6 @@ function respondWithResult(res, statusCode) {
     if(entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function saveUpsert(new) {
-  return function(entity) {
-    <%_ if(filters.mongooseModels) { -%>
-    var updated = _.assignIn(entity, updates);
-    return updated.save();
-    <%_ } -%>
-    <%_ if(filters.sequelizeModels) { -%>
-    return entity.updateAttributes(updates);
-    <%_ } -%>
   };
 }
 
